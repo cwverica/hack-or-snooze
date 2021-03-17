@@ -141,7 +141,7 @@ async function addStoryToPage(){
   const storyObj = {title, author, url};
   console.log(storyObj);
 
-  let story = await storyList.addStory(currentUser, storyObj);
+  const story = await storyList.addStory(currentUser, storyObj);
   hidePageComponents();
   getAndShowStoriesOnStart();
   putStoriesOnPage();
@@ -150,7 +150,7 @@ async function addStoryToPage(){
 
 $addStoryForm.on('submit', async function(e) {
   e.preventDefault();
-  let story = addStoryToPage();
+  const story = addStoryToPage();
   if(story){
   $('#story-author').val('');
   $('#story-title').val('');
@@ -162,7 +162,7 @@ $addStoryForm.on('submit', async function(e) {
 
 /* Checks to see if current story is favorited */ 
 function isUserFavorite(storyId){
-  return currentUser.favorites.some(story => (story.storyId == storyId));
+  return currentUser && currentUser.favorites.some(story => (story.storyId == storyId));
 }
  /* Finds the story's index in the users favorite list */
 function findFavoriteIndex(storyId) {
