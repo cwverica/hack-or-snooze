@@ -123,3 +123,13 @@ user-profile {
 	padding: 10px 20px 20px;
 	font-size: 0.9rem;
 }
+
+/* //// trying to add pur-dy onmouseover for favorites */
+
+.fa-star:hover {
+	cursor: grab;
+}
+
+.fa-star:active {
+	cursor: grabbing;
+}

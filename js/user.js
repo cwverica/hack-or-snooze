@@ -10,7 +10,7 @@ let currentUser;
 /** Handle login form submission. If login ok, sets up the user instance */
 
 async function login(evt) {
-  console.debug("login", evt);
+  // console.debug("login", evt);
   evt.preventDefault();
 
   // grab the username and password
@@ -20,11 +20,15 @@ async function login(evt) {
   // User.login retrieves user info from API and returns User instance
   // which we'll make the globally-available, logged-in user.
   currentUser = await User.login(username, password);
+  //// updated to validate user login
+  if(currentUser){
+    $loginForm.trigger("reset");
 
-  $loginForm.trigger("reset");
-
-  saveUserCredentialsInLocalStorage();
-  updateUIOnUserLogin();
+    saveUserCredentialsInLocalStorage();
+    updateUIOnUserLogin();
+  } else {
+    alert('Username/Password not found \nCheck credentials and try again')
+  }
 }
 
 $loginForm.on("submit", login);
@@ -32,7 +36,7 @@ $loginForm.on("submit", login);
 /** Handle signup form submission. */
 
 async function signup(evt) {
-  console.debug("signup", evt);
+  // console.debug("signup", evt);
   evt.preventDefault();
 
   const name = $("#signup-name").val();
@@ -57,7 +61,7 @@ $signupForm.on("submit", signup);
  */
 
 function logout(evt) {
-  console.debug("logout", evt);
+  // console.debug("logout", evt);
   updateNavOnLogout();
   localStorage.clear();
   location.reload();
@@ -74,7 +78,7 @@ $navLogOut.on("click", logout);
  */
 
 async function checkForRememberedUser() {
-  console.debug("checkForRememberedUser");
+  // console.debug("checkForRememberedUser");
   const token = localStorage.getItem("token");
   const username = localStorage.getItem("username");
   if (!token || !username) return false;
@@ -90,7 +94,7 @@ async function checkForRememberedUser() {
  */
 
 function saveUserCredentialsInLocalStorage() {
-  console.debug("saveUserCredentialsInLocalStorage");
+  // console.debug("saveUserCredentialsInLocalStorage");
   if (currentUser) {
     localStorage.setItem("token", currentUser.loginToken);
     localStorage.setItem("username", currentUser.username);
@@ -109,7 +113,7 @@ function saveUserCredentialsInLocalStorage() {
  */
 
 function updateUIOnUserLogin() {
-  console.debug("updateUIOnUserLogin");
+  // console.debug("updateUIOnUserLogin");
 
   $allStoriesList.show();
 
@@ -125,35 +129,8 @@ async function toggleFavoriteStatus (storyId){
   if (!currentUser) {
     alert("You must be signed in to favorite a story.")
   }
-  
-  let method = "";
-  let verb = "";
-  let classChange = '';
-
-  if(isUserFavorite(storyId)){
-    method = "DELETE";
-    verb = "Removing";
-    // let index = findFavoriteIndex(storyId);
-    // currentUser.favorites.splice(index, 1);
-  } else {
-    // addStoryToFavorites(storyId);
-    method = "POST";
-    verb = "Adding";
-  }
-  
-  try {
-    await axios({
-    url: `${BASE_URL}/users/${currentUser.username}/favorites/${storyId}`,
-    method,
-    params: { "token": currentUser.loginToken },
-  });
-
-  }
-  catch (e){
-    console.error(`${verb} favorite failed`, e);
-  }
-
-  currentUser = await User.updateUser();
+  // toggle classlist on dom
+  currentUser.toggleUserFavorite(storyId);
 }
 
 
