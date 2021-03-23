@@ -158,7 +158,7 @@ async function addStoryToPage(){
   const storyObj = {title, author, url};
   console.log(storyObj);
 
-  let story = await storyList.addStory(currentUser, storyObj);
+  const story = await storyList.addStory(currentUser, storyObj);
   hidePageComponents();
   getAndShowStoriesOnStart();
   putStoriesOnPage();
@@ -167,7 +167,9 @@ async function addStoryToPage(){
 
 $addStoryForm.on('submit', async function(e) {
   e.preventDefault();
-  let story = await addStoryToPage(); //// was working fine before, but ... added await
+  
+  const story = await addStoryToPage(); //// was working fine before, but ... added await
+
   if(story){
   $('#story-author').val('');
   $('#story-title').val('');
@@ -176,6 +178,7 @@ $addStoryForm.on('submit', async function(e) {
   location.reload();
   }
 });
+
 
 /* A function to send a delete request to the api,
  and remove the story from the UI
