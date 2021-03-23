@@ -23,7 +23,6 @@ async function getAndShowStoriesOnStart() {
  */
 
 function generateStoryMarkup(story, isUser, myStoryList) {
-  // console.debug("generateStoryMarkup", story);
 
   //// total overhaul of generate markup
 
@@ -67,7 +66,6 @@ function generateStoryMarkup(story, isUser, myStoryList) {
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
 function putStoriesOnPage() {
-  // console.debug("putStoriesOnPage");
 
   $allStoriesList.empty();
 
@@ -90,7 +88,6 @@ function putStoriesOnPage() {
 }
 
 function compileFavorites() {
-  // console.debug("compileFavorites");
 
   $favoriteStories.empty();
   if(currentUser.favorites.length == 0){
@@ -116,7 +113,6 @@ function compileFavorites() {
 }
 
 function displayMyStories() {
-  // console.debug("displayMyStories")
 
   $myStories.empty();
   if(currentUser.ownStories.length == 0){
@@ -156,7 +152,6 @@ async function addStoryToPage(){
   const title = $('#story-title').val();
   const url = $('#story-url').val();
   const storyObj = {title, author, url};
-  console.log(storyObj);
 
   let story = await storyList.addStory(currentUser, storyObj);
   hidePageComponents();
@@ -182,10 +177,12 @@ $addStoryForm.on('submit', async function(e) {
 */
 
 async function deleteStory(storyId) {
-  // console.log(storyId);
   try {
-    storyList.deleteStoryFromList(currentUser, storyId)
-    $(`#${storyId}`).remove();
+    const success = storyList.deleteStoryFromList(currentUser, storyId)
+    if (success){
+      $(`#${storyId}`).remove();
+      displayMyStories();
+    }
   } catch (e) {
     console.log("Could not delete story", e)
   }

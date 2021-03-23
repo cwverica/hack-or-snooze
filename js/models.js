@@ -113,19 +113,27 @@ class StoryList {
     const belongsToUser = user.ownStories.some((story) => (story.storyId == storyId));
     if(belongsToUser){
       try{
-        await axios({
+        const response = await axios({
           url: `${BASE_URL}/stories/${storyId}`,
           method: "DELETE",
           data: {
             "token": user.loginToken
           }
         });
-        currentUser = await User.updateUser();
-        displayMyStories();
+        if (response.status == 200){
+          currentUser = await User.updateUser();
+          return true;
+        } else {
+          window.alert("Something went wrong. Could not delete story")
+          return false;
+        }
       }
       catch (e){
         console.error("Failed to delete story", e)
+        return false;
       }
+    } else {
+      window.alert("Cannot delete stories that are not yours.")
     }
   }
   
