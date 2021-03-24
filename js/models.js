@@ -104,6 +104,39 @@ class StoryList {
       /*
     old code, might be useful at some point */
   }
+
+  /* Recieves a user obj and a storyId
+  *   -verifies story belongs to user
+  *   -deletes story from api
+  */
+  async deleteStoryFromList(user, storyId){
+    const belongsToUser = user.ownStories.some((story) => (story.storyId == storyId));
+    if(belongsToUser){
+      try{
+        const response = await axios({
+          url: `${BASE_URL}/stories/${storyId}`,
+          method: "DELETE",
+          data: {
+            "token": user.loginToken
+          }
+        });
+        if (response.status == 200){
+          currentUser = await User.updateUser();
+          return true;
+        } else {
+          window.alert("Something went wrong. Could not delete story")
+          return false;
+        }
+      }
+      catch (e){
+        console.error("Failed to delete story", e)
+        return false;
+      }
+    } else {
+      window.alert("Cannot delete stories that are not yours.")
+    }
+  }
+  
 }
 
 
@@ -168,24 +201,29 @@ class User {
    */
 
   static async login(username, password) {
-    const response = await axios({
-      url: `${BASE_URL}/login`,
-      method: "POST",
-      data: { user: { username, password } },
-    });
+    //// updated to validate user login
+    try{
+      const response = await axios({
+        url: `${BASE_URL}/login`,
+        method: "POST",
+        data: { user: { username, password } },
+      });
 
-    let { user } = response.data;
+      let { user } = response.data;
 
-    return new User(
-      {
-        username: user.username,
-        name: user.name,
-        createdAt: user.createdAt,
-        favorites: user.favorites,
-        ownStories: user.stories
-      },
-      response.data.token
-    );
+      return new User(
+        {
+          username: user.username,
+          name: user.name,
+          createdAt: user.createdAt,
+          favorites: user.favorites,
+          ownStories: user.stories
+        },
+        response.data.token
+      );
+    } catch (e) {
+      return false
+    }
   }
 
   /** When we already have credentials (token & username) for a user,
@@ -244,5 +282,39 @@ class User {
   
   }
 
+    /* Checks to see if current story is favorited */ 
+    isUserFavorite(storyId){
+      return this.favorites.some(story => (story.storyId == storyId));
+    }
 
+    
+  /* Finds the story's index in the users favorite list */
+    findFavoriteIndex(storyId) {
+      for (let x=0; x < currentUser.favorites.length; x++){
+        if(this.favorites[x].storyId == storyId){
+          return x;
+        }
+      }
+      return -1;
+    }
+
+    async toggleUserFavorite(storyId) {
+      let method = "POST";
+      if (this.isUserFavorite(storyId)){
+        method = "DELETE";
+      }
+      try {
+        await axios({
+        url: `${BASE_URL}/users/${this.username}/favorites/${storyId}`,
+        method: `${method}`,
+        params: { "token": this.loginToken },
+      });
+
+      }
+      catch (e){
+        console.error(`Toggle favorite failed`, e);
+      }
+
+      currentUser = await User.updateUser();
+    }
 }
